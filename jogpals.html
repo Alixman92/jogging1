@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>JogPals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0A0A0A;color:#F0F0F0;font-family:'Outfit',sans-serif;min-height:100vh}
+body{display:flex;justify-content:center}
+#app{width:100%;max-width:480px;min-height:100vh;padding-bottom:80px;position:relative}
+button,input,textarea,select{font-family:'Outfit',sans-serif}
+button{cursor:pointer}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+input[type=range]{accent-color:#00E676;width:100%;cursor:pointer}
+select option{background:#1E1E1E;color:#F0F0F0}
+
+/* ── Nav ── */
+#bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0F0F0F;border-top:1px solid #2A2A2A;display:flex;z-index:99}
+.nav-btn{flex:1;padding:10px 0 8px;background:none;border:none;color:#777;transition:color .2s;text-align:center}
+.nav-btn.active{color:#00E676}
+.nav-btn .nav-icon{font-size:20px;line-height:1}
+.nav-btn .nav-label{font-size:10px;font-weight:400;margin-top:3px;letter-spacing:.04em}
+.nav-btn.active .nav-label{font-weight:600}
+
+/* ── Common ── */
+.tab{display:none;padding:24px 20px 16px;animation:fadeIn .18s ease}
+.tab.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:.05em;line-height:1}
+.lbl{font-size:11px;color:#777;margin-bottom:4px;font-weight:500;display:block}
+.card{background:#1E1E1E;border-radius:12px;padding:14px;margin-bottom:10px}
+.input-field{background:#141414;color:#F0F0F0;border:1px solid #2A2A2A;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:10px;display:block;width:100%;outline:none;transition:border-color .2s}
+.input-field:focus{border-color:#00E676}
+.btn-green{background:#00E676;color:#000;border:none;border-radius:8px;padding:10px 18px;font-weight:700;font-size:14px}
+.btn-ghost{background:#141414;color:#777;border:1px solid #2A2A2A;border-radius:8px;padding:10px 16px;font-size:14px}
+.btn-danger{background:#2A1515;color:#FF6B6B;border:1px solid #3A2020;border-radius:8px;padding:10px 16px;font-size:14px}
+.surface{background:#141414;border-radius:14px;padding:16px}
+.pbar-wrap{background:#141414;border-radius:4px;height:6px;overflow:hidden}
+.pbar-fill{height:100%;background:#00E676;border-radius:4px;transition:width .4s ease}
+.pbar-fill.dim{background:#555}
+.empty-state{text-align:center;padding:44px 20px;color:#777}
+.empty-state .empty-icon{font-size:48px}
+.empty-state .empty-title{font-weight:600;font-size:15px;color:#F0F0F0;margin-top:10px;margin-bottom:4px}
+.row-between{display:flex;justify-content:space-between;align-items:center}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.meta-text{font-size:11px;color:#777;margin-top:2px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.section-subheading{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#777}
+.see-all-btn{background:none;border:none;color:#00E676;font-size:12px;font-family:'Outfit',sans-serif}
+.badge{border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600}
+
+/* ── Home ── */
+.stat-card{background:#141414;border-radius:14px;padding:14px 8px;text-align:center}
+.stat-val{font-family:'Bebas Neue',cursive;font-size:32px;color:#00E676;line-height:1}
+.stat-lbl{font-size:10px;color:#777;margin-top:4px;text-transform:uppercase;letter-spacing:.07em}
+.mini-stat{background:#141414;border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px}
+.mini-val{font-family:'Bebas Neue',cursive;font-size:24px;color:#AAA;line-height:1}
+.mini-lbl{font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.06em}
+.quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.run-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#141414;border-radius:10px;margin-bottom:8px}
+.quote-bar{background:#141414;border-left:3px solid #00E676;padding:9px 14px;border-radius:0 8px 8px 0;margin:20px 0;font-size:13px;color:#AAA;font-style:italic}
+
+/* ── Timer ── */
+.timer-ring-wrap{display:flex;flex-direction:column;align-items:center}
+.timer-stats{display:flex;gap:24px;margin-bottom:24px}
+.timer-stat{text-align:center}
+.timer-stat-val{font-family:'Bebas Neue',cursive;font-size:28px;line-height:1}
+.timer-stat-lbl{font-size:10px;color:#777;text-transform:uppercase;margin-top:2px}
+.timer-btns{display:flex;gap:12px;margin-top:0}
+.timer-main-btn{background:#00E676;color:#000;border:none;border-radius:12px;padding:13px 30px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:.06em}
+.timer-ghost-btn{background:#141414;color:#F0F0F0;border:1px solid #2A2A2A;border-radius:12px;padding:13px 30px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:.06em}
+
+/* ── Calendar ── */
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin:16px 0}
+.cal-nav-btn{background:#141414;border:1px solid #2A2A2A;color:#F0F0F0;border-radius:8px;padding:8px 16px;font-size:18px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{text-align:center;font-size:11px;color:#777;padding:4px 0}
+.cal-day{background:#141414;border:1px solid #2A2A2A;border-radius:8px;aspect-ratio:1/1;color:#F0F0F0;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:background .15s}
+.cal-day.today{border:2px solid #00E676}
+.cal-day.has-run{background:#182820;font-weight:700}
+.cal-day.selected{background:#00E676;color:#000;font-weight:700}
+.cal-dot{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#00E676}
+.run-form{background:#141414;border-radius:14px;padding:16px;margin-top:16px}
+
+/* ── Goals ── */
+.goal-card{background:#141414;border-radius:12px;padding:14px;margin-bottom:10px}
+.goal-card.done-card{opacity:.55}
+.goal-actions{display:flex;gap:6px;margin-left:8px}
+.goal-action-btn{background:none;border:1px solid #2A2A2A;color:#777;border-radius:6px;padding:3px 8px;font-size:12px;font-family:'Outfit',sans-serif}
+.goal-action-btn.done-btn{color:#00E676}
+
+/* ── Journal ── */
+.journal-entry{background:#141414;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.mood-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.mood-btn{font-size:22px;background:none;border:2px solid transparent;border-radius:8px;padding:4px 6px}
+.mood-btn.selected{background:#1E1E1E;border-color:#00E676}
+.entry-preview{font-size:13px;color:#999;margin-top:8px;line-height:1.5}
+.entry-full{font-size:13px;color:#CCC;margin-top:10px;line-height:1.7;white-space:pre-wrap;border-top:1px solid #2A2A2A;padding-top:10px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div id="tab-home" class="tab active">
+    <div style="margin-bottom:6px">
+      <div style="font-family:'Bebas Neue',cursive;font-size:52px;color:#00E676;line-height:1;letter-spacing:.05em">JOGPALS</div>
+      <div id="home-date" style="color:#777;font-size:13px;margin-top:2px"></div>
+    </div>
+    <div class="quote-bar">"The miracle isn't that I finished. The miracle is that I had the courage to start."</div>
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-val" id="stat-runs">0</div><div class="stat-lbl">Runs</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-km">0.0</div><div class="stat-lbl">km Total</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-streak">0🔥</div><div class="stat-lbl">Streak</div></div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px" id="mini-stats-row">
+      <div class="mini-stat"><div class="mini-val" id="stat-time">0m</div><div class="mini-lbl">Time Logged</div></div>
+      <div class="mini-stat"><div class="mini-val" id="stat-best">—</div><div class="mini-lbl">Best Run</div></div>
+    </div>
+    <div class="quick-btns">
+      <button class="btn-green" onclick="switchTab('timer')" style="padding:14px;font-size:14px">⏱ Start Timer</button>
+      <button style="background:#141414;color:#F0F0F0;border:1px solid #2A2A2A;border-radius:12px;padding:14px;font-weight:600;font-size:14px" onclick="switchTab('calendar')">📍 Log a Run</button>
+    </div>
+    <div id="home-goals-section" style="display:none">
+      <div class="section-header">
+        <div class="section-subheading">Active Goals</div>
+        <button class="see-all-btn" onclick="switchTab('goals')">See all →</button>
+      </div>
+      <div id="home-goals-list"></div>
+    </div>
+    <div id="home-runs-section" style="display:none;margin-top:8px">
+      <div class="section-header">
+        <div class="section-subheading">Recent Runs</div>
+        <button class="see-all-btn" onclick="switchTab('calendar')">See all →</button>
+      </div>
+      <div id="home-runs-list"></div>
+    </div>
+    <div id="home-empty" style="text-align:center;padding:32px 0;color:#777">
+      <div style="font-size:52px">👟</div>
+      <div style="font-weight:600;font-size:16px;color:#F0F0F0;margin-top:10px;margin-bottom:4px">Lace up, let's go!</div>
+      <div style="font-size:13px">Log your first run to start tracking</div>
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div id="tab-timer" class="tab">
+    <div class="row-between" style="margin-bottom:20px">
+      <div class="section-title">INTERVAL TIMER</div>
+      <button id="timer-setup-btn" class="btn-ghost" style="padding:6px 14px;font-size:13px" onclick="toggleTimerSetup()">⚙ Setup</button>
+    </div>
+    <div id="timer-setup-panel" style="display:none" class="surface" style="margin-bottom:20px">
+      <div style="margin-bottom:14px">
+        <div class="row-between" style="margin-bottom:6px"><span class="lbl" style="margin:0">Rounds</span><span id="lbl-rounds" style="color:#00E676;font-weight:700;font-size:13px">6</span></div>
+        <input type="range" min="1" max="20" value="6" id="rng-rounds" oninput="document.getElementById('lbl-rounds').textContent=this.value"/>
+      </div>
+      <div style="margin-bottom:14px">
+        <div class="row-between" style="margin-bottom:6px"><span class="lbl" style="margin:0">Work (min)</span><span id="lbl-work" style="color:#00E676;font-weight:700;font-size:13px">3</span></div>
+        <input type="range" min="1" max="60" value="3" id="rng-work" oninput="document.getElementById('lbl-work').textContent=this.value"/>
+      </div>
+      <div style="margin-bottom:14px">
+        <div class="row-between" style="margin-bottom:6px"><span class="lbl" style="margin:0">Rest (min)</span><span id="lbl-rest" style="color:#FF6D00;font-weight:700;font-size:13px">1</span></div>
+        <input type="range" min="1" max="30" value="1" id="rng-rest" oninput="document.getElementById('lbl-rest').textContent=this.value"/>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-green" style="flex:1" onclick="saveTimerConfig()">Save</button>
+        <button class="btn-ghost" onclick="toggleTimerSetup()">Cancel</button>
+      </div>
+    </div>
+    <div class="timer-ring-wrap">
+      <svg id="timer-svg" width="230" height="230" viewBox="0 0 230 230" style="margin-bottom:16px">
+        <circle cx="115" cy="115" r="90" fill="none" stroke="#282828" stroke-width="14"/>
+        <circle id="timer-ring" cx="115" cy="115" r="90" fill="none" stroke="#00E676" stroke-width="14"
+          stroke-dasharray="565.49" stroke-dashoffset="0" stroke-linecap="round"
+          transform="rotate(-90 115 115)" style="transition:stroke-dashoffset .85s linear,stroke .4s"/>
+        <text id="timer-display" x="115" y="99" text-anchor="middle" fill="#F0F0F0"
+          font-family="'Bebas Neue',cursive" font-size="54">00:00</text>
+        <text id="timer-phase" x="115" y="129" text-anchor="middle" fill="#00E676"
+          font-family="Outfit,sans-serif" font-size="15" font-weight="600">READY</text>
+        <text id="timer-round-lbl" x="115" y="151" text-anchor="middle" fill="#777"
+          font-family="Outfit,sans-serif" font-size="13">Round 1 of 6</text>
+      </svg>
+      <div style="width:200px;margin-bottom:20px">
+        <div class="row-between" style="font-size:11px;color:#777;margin-bottom:4px">
+          <span>Overall progress</span><span id="timer-pct">0%</span>
+        </div>
+        <div class="pbar-wrap"><div class="pbar-fill" id="timer-pbar" style="width:0%"></div></div>
+      </div>
+      <div class="timer-stats">
+        <div class="timer-stat"><div class="timer-stat-val" id="cfg-rounds-lbl" style="color:#F0F0F0">6</div><div class="timer-stat-lbl">Rounds</div></div>
+        <div class="timer-stat"><div class="timer-stat-val" id="cfg-work-lbl" style="color:#00E676">3m</div><div class="timer-stat-lbl">Work</div></div>
+        <div class="timer-stat"><div class="timer-stat-val" id="cfg-rest-lbl" style="color:#FF6D00">1m</div><div class="timer-stat-lbl">Rest</div></div>
+      </div>
+      <div class="timer-btns" id="timer-btns">
+        <button class="timer-main-btn" onclick="timerAction('start')">▶ START</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tab-calendar" class="tab">
+    <div class="row-between" style="margin-bottom:4px">
+      <div class="section-title">RUN LOG</div>
+      <div class="badge" id="month-run-count" style="background:#141414;color:#00E676;display:none"></div>
+    </div>
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+      <div id="cal-month-label" style="font-weight:600;font-size:16px"></div>
+      <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+    </div>
+    <div class="cal-grid" style="margin-bottom:4px" id="cal-dow-row"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="run-form" id="run-form" style="display:none">
+      <div class="row-between" style="margin-bottom:12px">
+        <div id="run-form-date" style="font-weight:600"></div>
+        <button style="background:none;border:none;color:#777;font-size:20px" onclick="closeRunForm()">×</button>
+      </div>
+      <div class="grid-2">
+        <div><label class="lbl">Distance (km)</label><input class="input-field" type="number" id="run-km" placeholder="5.2" style="margin-bottom:0"/></div>
+        <div><label class="lbl">Duration (min)</label><input class="input-field" type="number" id="run-mins" placeholder="32" style="margin-bottom:0"/></div>
+      </div>
+      <div style="margin-top:10px"><label class="lbl">Notes</label><textarea class="input-field" id="run-notes" rows="2" placeholder="How did it feel?" style="resize:none;margin-bottom:0"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn-green" style="flex:1" onclick="saveRun()">Save Run</button>
+        <button class="btn-danger" id="del-run-btn" style="display:none" onclick="deleteRun()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOALS -->
+  <div id="tab-goals" class="tab">
+    <div class="row-between" style="margin-bottom:20px">
+      <div class="section-title">GOALS</div>
+      <button class="btn-green" onclick="toggleGoalForm()">+ Add</button>
+    </div>
+    <div class="surface" id="goal-form" style="display:none;margin-bottom:20px">
+      <label class="lbl">Goal title</label>
+      <input class="input-field" id="goal-title" placeholder="e.g. Run 5km without stopping"/>
+      <div class="grid-2">
+        <div><label class="lbl">Target</label><input class="input-field" type="number" id="goal-target" placeholder="0" style="margin-bottom:0"/></div>
+        <div><label class="lbl">Unit</label>
+          <select class="input-field" id="goal-unit" style="margin-bottom:0;padding:9px 8px">
+            <option>km</option><option>runs</option><option>min</option><option>days</option><option>laps</option><option>times</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px"><label class="lbl">Deadline (optional)</label><input class="input-field" type="date" id="goal-deadline" style="margin-bottom:12px"/></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-green" style="flex:1" onclick="addGoal()">Save Goal</button>
+        <button class="btn-ghost" onclick="toggleGoalForm()">Cancel</button>
+      </div>
+    </div>
+    <div id="goals-active-list"></div>
+    <div id="goals-done-section" style="display:none">
+      <div style="font-size:12px;color:#777;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 8px">Completed ✓</div>
+      <div id="goals-done-list"></div>
+    </div>
+    <div id="goals-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">Set a goal, chase it</div>
+      <div>Goals keep you on track</div>
+    </div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div id="tab-journal" class="tab">
+    <div class="row-between" style="margin-bottom:20px">
+      <div class="section-title">JOURNAL</div>
+      <button class="btn-green" onclick="toggleJournalForm()">+ Entry</button>
+    </div>
+    <div class="surface" id="journal-form" style="display:none;margin-bottom:20px">
+      <label class="lbl">Title</label>
+      <input class="input-field" id="j-title" placeholder="Today's run..."/>
+      <label class="lbl">Mood</label>
+      <div class="mood-picker" id="mood-picker"></div>
+      <label class="lbl">Entry</label>
+      <textarea class="input-field" id="j-body" rows="4" placeholder="Write about your run — what you felt, what you noticed, what you're proud of..." style="resize:vertical"></textarea>
+      <label class="lbl">Date</label>
+      <input class="input-field" type="date" id="j-date" style="margin-bottom:12px"/>
+      <div style="display:flex;gap:8px">
+        <button class="btn-green" style="flex:1" onclick="addJournalEntry()">Save Entry</button>
+        <button class="btn-ghost" onclick="toggleJournalForm()">Cancel</button>
+      </div>
+    </div>
+    <div id="journal-list"></div>
+    <div id="journal-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">📓</div>
+      <div class="empty-title">Your running story starts here</div>
+      <div>Add your first journal entry</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-tab="home" onclick="switchTab('home')"><div class="nav-icon">⚡</div><div class="nav-label">Home</div></button>
+    <button class="nav-btn" data-tab="timer" onclick="switchTab('timer')"><div class="nav-icon">⏱</div><div class="nav-label">Timer</div></button>
+    <button class="nav-btn" data-tab="calendar" onclick="switchTab('calendar')"><div class="nav-icon">📍</div><div class="nav-label">Log</div></button>
+    <button class="nav-btn" data-tab="goals" onclick="switchTab('goals')"><div class="nav-icon">🎯</div><div class="nav-label">Goals</div></button>
+    <button class="nav-btn" data-tab="journal" onclick="switchTab('journal')"><div class="nav-icon">📓</div><div class="nav-label">Journal</div></button>
+  </nav>
+</div>
+
+<script>
+// ── Storage ──────────────────────────────────────────────
+const STORE_KEY = 'jogpals_v1';
+let DB = { runs:{}, goals:[], journal:[], timerCfg:{rounds:6,work:3,rest:1} };
+function loadDB(){ try{ const s=localStorage.getItem(STORE_KEY); if(s) DB={...DB,...JSON.parse(s)}; }catch(e){} }
+function saveDB(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(DB)); }catch(e){} }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_S=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+// ── Tab switching ──────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelector('[data-tab="'+id+'"]').classList.add('active');
+  if(id==='home') renderHome();
+  if(id==='calendar') renderCalendar();
+  if(id==='goals') renderGoals();
+  if(id==='journal') renderJournal();
+}
+
+// ── HOME ──────────────────────────────────────────────────────
+function renderHome(){
+  const entries=Object.entries(DB.runs).sort(([a],[b])=>b.localeCompare(a));
+  const totalRuns=entries.length;
+  const totalKm=entries.reduce((s,[,r])=>s+(r.km||0),0);
+  const totalMins=entries.reduce((s,[,r])=>s+(r.mins||0),0);
+  let streak=0;
+  const dt=new Date();
+  for(let i=0;i<365;i++){
+    const k=dt.toISOString().slice(0,10);
+    if(DB.runs[k]){streak++;dt.setDate(dt.getDate()-1);}else break;
+  }
+  const bestRun=entries.reduce((b,[,r])=>r.km>(b?.km||0)?r:b,null);
+  document.getElementById('home-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('stat-runs').textContent=totalRuns;
+  document.getElementById('stat-km').textContent=totalKm.toFixed(1);
+  document.getElementById('stat-streak').textContent=streak+'🔥';
+  document.getElementById('stat-time').textContent=totalMins+'m';
+  document.getElementById('stat-best').textContent=bestRun?bestRun.km+'km':'—';
+
+  const activeGoals=DB.goals.filter(g=>!g.done);
+  const goalsSection=document.getElementById('home-goals-section');
+  const goalsList=document.getElementById('home-goals-list');
+  if(activeGoals.length>0){
+    goalsSection.style.display='block';
+    goalsList.innerHTML=activeGoals.slice(0,2).map(g=>{
+      const pct=g.target>0?Math.min(100,g.current/g.target*100):0;
+      return `<div class="card" style="padding:10px 14px;margin-bottom:8px">
+        <div class="row-between" style="font-size:14px;font-weight:500;margin-bottom:6px">
+          <span>${esc(g.title)}</span><span style="color:#00E676;font-weight:700">${pct.toFixed(0)}%</span>
+        </div>
+        <div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }else{ goalsSection.style.display='none'; }
+
+  const runsSection=document.getElementById('home-runs-section');
+  const runsList=document.getElementById('home-runs-list');
+  if(entries.length>0){
+    runsSection.style.display='block';
+    runsList.innerHTML=entries.slice(0,3).map(([date,run])=>`
+      <div class="run-row">
+        <div>
+          <div style="font-weight:600;font-size:14px">${new Date(date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+          ${run.notes?`<div style="font-size:12px;color:#777;margin-top:2px">${esc(run.notes).slice(0,45)}${run.notes.length>45?'…':''}</div>`:''}
+        </div>
+        <div style="text-align:right">
+          ${run.km>0?`<div style="font-weight:700;color:#00E676">${run.km}km</div>`:''}
+          ${run.mins>0?`<div style="font-size:12px;color:#777">${run.mins}m</div>`:''}
+        </div>
+      </div>`).join('');
+  }else{ runsSection.style.display='none'; }
+
+  document.getElementById('home-empty').style.display=totalRuns===0?'block':'none';
+  document.getElementById('mini-stats-row').style.display=totalRuns>0?'grid':'none';
+}
+
+// ── TIMER ──────────────────────────────────────────────────────
+let timerState='idle', timerPhase='work', timerRound=1, timerSecs=0, timerIv=null;
+const CIRC=2*Math.PI*90;
+
+function getTimerCfg(){
+  return {
+    rounds: parseInt(document.getElementById('rng-rounds').value)||DB.timerCfg.rounds,
+    work:   parseInt(document.getElementById('rng-work').value)||DB.timerCfg.work,
+    rest:   parseInt(document.getElementById('rng-rest').value)||DB.timerCfg.rest,
+  };
+}
+
+function initTimerDisplay(){
+  const c=DB.timerCfg;
+  document.getElementById('rng-rounds').value=c.rounds;
+  document.getElementById('rng-work').value=c.work;
+  document.getElementById('rng-rest').value=c.rest;
+  document.getElementById('lbl-rounds').textContent=c.rounds;
+  document.getElementById('lbl-work').textContent=c.work;
+  document.getElementById('lbl-rest').textContent=c.rest;
+  resetTimer();
+}
+
+function toggleTimerSetup(){
+  const p=document.getElementById('timer-setup-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+
+function saveTimerConfig(){
+  const c=getTimerCfg();
+  DB.timerCfg=c;saveDB();
+  document.getElementById('cfg-rounds-lbl').textContent=c.rounds;
+  document.getElementById('cfg-work-lbl').textContent=c.work+'m';
+  document.getElementById('cfg-rest-lbl').textContent=c.rest+'m';
+  document.getElementById('timer-round-lbl').textContent='Round 1 of '+c.rounds;
+  toggleTimerSetup();
+  resetTimer();
+}
+
+function resetTimer(){
+  clearInterval(timerIv);
+  const c=DB.timerCfg;
+  timerState='idle';timerPhase='work';timerRound=1;timerSecs=c.work*60;
+  document.getElementById('cfg-rounds-lbl').textContent=c.rounds;
+  document.getElementById('cfg-work-lbl').textContent=c.work+'m';
+  document.getElementById('cfg-rest-lbl').textContent=c.rest+'m';
+  updateTimerUI();
+  document.getElementById('timer-btns').innerHTML=`<button class="timer-main-btn" onclick="timerAction('start')">▶ START</button>`;
+}
+
+function timerAction(action){
+  const c=DB.timerCfg;
+  if(action==='start'||action==='resume'){
+    timerState='running';
+    timerIv=setInterval(timerTick,1000);
+    document.getElementById('timer-btns').innerHTML=`<button class="timer-ghost-btn" onclick="timerAction('pause')">⏸ PAUSE</button>`;
+    document.getElementById('timer-setup-btn').style.display='none';
+  } else if(action==='pause'){
+    clearInterval(timerIv);timerState='paused';
+    document.getElementById('timer-btns').innerHTML=`
+      <button class="timer-main-btn" onclick="timerAction('resume')">▶ RESUME</button>
+      <button class="timer-ghost-btn" onclick="resetTimer()">↺ RESET</button>`;
+  }
+  updateTimerUI();
+}
+
+function timerTick(){
+  const c=DB.timerCfg;
+  if(timerSecs>1){
+    timerSecs--;
+  } else if(timerPhase==='work'){
+    if(timerRound>=c.rounds){
+      clearInterval(timerIv);timerState='done';
+      document.getElementById('timer-btns').innerHTML=`<button class="timer-ghost-btn" onclick="resetTimer()">↺ RESET</button>`;
+      document.getElementById('timer-setup-btn').style.display='';
+    } else {
+      timerPhase='rest';timerSecs=c.rest*60;
+    }
+  } else {
+    timerRound++;timerPhase='work';timerSecs=c.work*60;
+  }
+  updateTimerUI();
+}
+
+function updateTimerUI(){
+  const c=DB.timerCfg;
+  const m=Math.floor(timerSecs/60), s=timerSecs%60;
+  document.getElementById('timer-display').textContent=pad2(m)+':'+pad2(s);
+  const phaseColor=timerPhase==='work'?'#00E676':'#FF6D00';
+  const ring=document.getElementById('timer-ring');
+  ring.setAttribute('stroke',phaseColor);
+  const totalSecs=timerPhase==='work'?c.work*60:c.rest*60;
+  const offset=timerState==='idle'?0:CIRC*(1-timerSecs/totalSecs);
+  ring.setAttribute('stroke-dashoffset',offset);
+  const phaseEl=document.getElementById('timer-phase');
+  phaseEl.setAttribute('fill',phaseColor);
+  phaseEl.textContent=timerState==='done'?'DONE! 🎉':timerState==='idle'?'READY':timerPhase.toUpperCase();
+  document.getElementById('timer-round-lbl').textContent='Round '+timerRound+' of '+c.rounds;
+  const overall=Math.round(((timerRound-1)*2+(timerPhase==='work'?0:1))/(c.rounds*2)*100);
+  document.getElementById('timer-pct').textContent=overall+'%';
+  document.getElementById('timer-pbar').style.width=overall+'%';
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calSelKey=null;
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  calSelKey=null;
+  document.getElementById('run-form').style.display='none';
+  renderCalendar();
+}
+
+function renderCalendar(){
+  document.getElementById('cal-month-label').textContent=MONTHS[calMonth]+' '+calYear;
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+  const daysInMo=new Date(calYear,calMonth+1,0).getDate();
+  const today=todayKey();
+  const monthPrefix=calYear+'-'+pad2(calMonth+1);
+  const monthRuns=Object.keys(DB.runs).filter(k=>k.startsWith(monthPrefix)).length;
+  const badge=document.getElementById('month-run-count');
+  if(monthRuns>0){badge.style.display='';badge.textContent=monthRuns+' run'+(monthRuns>1?'s':'')+' this month';}
+  else badge.style.display='none';
+
+  const dowRow=document.getElementById('cal-dow-row');
+  dowRow.innerHTML=DAYS_S.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+
+  const grid=document.getElementById('cal-grid');
+  let html='';
+  for(let i=0;i<firstDow;i++) html+='<div></div>';
+  for(let day=1;day<=daysInMo;day++){
+    const k=calYear+'-'+pad2(calMonth+1)+'-'+pad2(day);
+    const hasRun=!!DB.runs[k];
+    const isToday=k===today;
+    const isSel=k===calSelKey;
+    let cls='cal-day';
+    if(isToday) cls+=' today';
+    if(hasRun&&!isSel) cls+=' has-run';
+    if(isSel) cls+=' selected';
+    html+=`<button class="${cls}" onclick="pickDay('${k}',${day})">${day}${hasRun&&!isSel?'<span class="cal-dot"></span>':''}</button>`;
+  }
+  grid.innerHTML=html;
+}
+
+function pickDay(k){
+  if(calSelKey===k){calSelKey=null;document.getElementById('run-form').style.display='none';renderCalendar();return;}
+  calSelKey=k;
+  const ex=DB.runs[k]||{};
+  document.getElementById('run-form-date').textContent=new Date(k+'T00:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('run-km').value=ex.km||'';
+  document.getElementById('run-mins').value=ex.mins||'';
+  document.getElementById('run-notes').value=ex.notes||'';
+  document.getElementById('del-run-btn').style.display=DB.runs[k]?'':'none';
+  document.getElementById('run-form').style.display='block';
+  renderCalendar();
+}
+
+function closeRunForm(){calSelKey=null;document.getElementById('run-form').style.display='none';renderCalendar();}
+
+function saveRun(){
+  if(!calSelKey) return;
+  DB.runs[calSelKey]={
+    km:parseFloat(document.getElementById('run-km').value)||0,
+    mins:parseInt(document.getElementById('run-mins').value)||0,
+    notes:document.getElementById('run-notes').value.trim()
+  };
+  saveDB();
+  document.getElementById('del-run-btn').style.display='';
+  renderCalendar();
+}
+
+function deleteRun(){
+  if(!calSelKey) return;
+  delete DB.runs[calSelKey];
+  saveDB();
+  closeRunForm();
+}
+
+// ── GOALS ──────────────────────────────────────────────────────
+function toggleGoalForm(){
+  const f=document.getElementById('goal-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){document.getElementById('goal-title').value='';document.getElementById('goal-target').value='';document.getElementById('goal-deadline').value='';}
+}
+
+function addGoal(){
+  const title=document.getElementById('goal-title').value.trim();
+  if(!title) return;
+  DB.goals.push({id:uid(),title,target:parseInt(document.getElementById('goal-target').value)||0,unit:document.getElementById('goal-unit').value,deadline:document.getElementById('goal-deadline').value,current:0,done:false});
+  saveDB();toggleGoalForm();renderGoals();
+}
+
+function toggleGoalDone(id){
+  DB.goals=DB.goals.map(g=>g.id===id?{...g,done:!g.done}:g);saveDB();renderGoals();
+}
+
+function removeGoal(id){ DB.goals=DB.goals.filter(g=>g.id!==id);saveDB();renderGoals(); }
+
+function updateGoalProgress(id,v){
+  DB.goals=DB.goals.map(g=>g.id===id?{...g,current:parseFloat(v)||0}:g);saveDB();renderGoals();
+}
+
+function renderGoals(){
+  const active=DB.goals.filter(g=>!g.done);
+  const done=DB.goals.filter(g=>g.done);
+  document.getElementById('goals-empty').style.display=(DB.goals.length===0&&document.getElementById('goal-form').style.display==='none')?'block':'none';
+  document.getElementById('goals-active-list').innerHTML=active.map(goalCardHTML).join('');
+  const ds=document.getElementById('goals-done-section');
+  if(done.length>0){ds.style.display='block';document.getElementById('goals-done-list').innerHTML=done.map(goalCardHTML).join('');}
+  else ds.style.display='none';
+}
+
+function goalCardHTML(g){
+  const pct=g.target>0?Math.min(100,g.current/g.target*100):0;
+  return `<div class="goal-card${g.done?' done-card':''}" id="gc-${g.id}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;cursor:pointer" onclick="toggleGoalExpand('${g.id}')">
+        <div style="font-weight:600;font-size:14px;${g.done?'text-decoration:line-through':''}">${esc(g.title)}</div>
+        ${g.deadline?`<div class="meta-text">📅 ${g.deadline}</div>`:''}
+      </div>
+      <div class="goal-actions">
+        <button class="goal-action-btn${g.done?' done-btn':''}" onclick="toggleGoalDone('${g.id}')">${g.done?'↩':'✓'}</button>
+        <button style="background:none;border:none;color:#777;font-size:18px;padding:0 2px" onclick="removeGoal('${g.id}')">×</button>
+      </div>
+    </div>
+    ${g.target>0?`<div style="margin-top:10px">
+      <div class="row-between" style="font-size:12px;color:#777;margin-bottom:4px">
+        <span>Progress</span><span style="color:${g.done?'#777':'#00E676'}">${g.current} / ${g.target} ${esc(g.unit)}</span>
+      </div>
+      <div class="pbar-wrap"><div class="pbar-fill${g.done?' dim':''}" style="width:${pct}%"></div></div>
+    </div>`:''}
+    ${!g.done&&g.target>0?`<div id="gexpand-${g.id}" style="display:none;margin-top:10px;display:flex;gap:8px;align-items:center">
+      <input type="number" value="${g.current}" onchange="updateGoalProgress('${g.id}',this.value)"
+        class="input-field" style="flex:1;margin-bottom:0" placeholder="Current"/>
+      <span style="font-size:12px;color:#777;white-space:nowrap">${esc(g.unit)}</span>
+    </div>`:''}
+  </div>`;
+}
+
+function toggleGoalExpand(id){
+  const el=document.getElementById('gexpand-'+id);
+  if(el) el.style.display=el.style.display==='none'?'flex':'none';
+}
+
+// ── JOURNAL ──────────────────────────────────────────────────
+const MOODS=['💪','🔥','😊','😌','😤','😫','🤩','😴','🌧','⚡'];
+let selMood='💪', expandedEntry=null;
+
+function toggleJournalForm(){
+  const f=document.getElementById('journal-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    document.getElementById('j-title').value='';
+    document.getElementById('j-body').value='';
+    document.getElementById('j-date').value=todayKey();
+    selMood='💪';renderMoodPicker();
+  }
+}
+
+function renderMoodPicker(){
+  document.getElementById('mood-picker').innerHTML=MOODS.map(m=>
+    `<button class="mood-btn${selMood===m?' selected':''}" onclick="pickMood('${m}')">${m}</button>`
+  ).join('');
+}
+
+function pickMood(m){ selMood=m;renderMoodPicker(); }
+
+function addJournalEntry(){
+  const title=document.getElementById('j-title').value.trim();
+  const body=document.getElementById('j-body').value.trim();
+  if(!title&&!body) return;
+  DB.journal.unshift({id:uid(),title,body,mood:selMood,date:document.getElementById('j-date').value||todayKey()});
+  saveDB();toggleJournalForm();renderJournal();
+}
+
+function removeEntry(id){ DB.journal=DB.journal.filter(e=>e.id!==id);saveDB();renderJournal(); }
+
+function toggleEntryExpand(id){ expandedEntry=expandedEntry===id?null:id;renderJournal(); }
+
+function renderJournal(){
+  const list=document.getElementById('journal-list');
+  const empty=document.getElementById('journal-empty');
+  if(DB.journal.length===0&&document.getElementById('journal-form').style.display==='none'){ empty.style.display='block';list.innerHTML=''; return; }
+  empty.style.display='none';
+  list.innerHTML=DB.journal.map(e=>`
+    <div class="journal-entry" onclick="toggleEntryExpand('${e.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="display:flex;gap:10px;flex:1">
+          <span style="font-size:24px;line-height:1;margin-top:2px">${e.mood}</span>
+          <div>
+            <div style="font-weight:600;font-size:14px">${esc(e.title)||'Journal Entry'}</div>
+            <div class="meta-text">${new Date(e.date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+          </div>
+        </div>
+        <button onclick="event.stopPropagation();removeEntry('${e.id}')" style="background:none;border:none;color:#777;font-size:18px;padding:0 2px">×</button>
+      </div>
+      ${e.body&&expandedEntry!==e.id?`<div class="entry-preview">${esc(e.body).slice(0,90)}${e.body.length>90?'…':''}</div>`:''}
+      ${e.body&&expandedEntry===e.id?`<div class="entry-full">${esc(e.body)}</div>`:''}
+    </div>`).join('');
+}
+
+// ── Helpers ──────────────────────────────────────────────
+function esc(s){ const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML; }
+
+// ── Boot ──────────────────────────────────────────────────
+loadDB();
+initTimerDisplay();
+renderHome();
+renderCalendar();
+renderGoals();
+renderJournal();
+renderMoodPicker();
+document.getElementById('j-date').value=todayKey();
+</script>
+</body>
+</html>
